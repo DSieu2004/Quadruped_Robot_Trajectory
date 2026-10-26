@@ -12,7 +12,7 @@ Khi chạy trajectory, follower phát trực tiếp `/cmd_vel`, không gọi pla
 2. Sau thời gian chờ, nó tạo mẫu tham chiếu theo thời gian mô phỏng. Mỗi pose tham chiếu được công bố trên `trajectory/reference` với frame `odom` và timestamp riêng.
 3. Ở mỗi chu kỳ điều khiển, follower đọc pose/vận tốc thực, tính lệnh từ PID, SMC hoặc MPC theo `control_law`.
 4. Lệnh vận tốc được giới hạn, đổi từ hệ tọa độ thế giới sang hệ thân robot rồi phát trên `/cmd_vel`.
-5. Follower lưu telemetry theo từng mẫu vào CSV; plotter hiển thị quỹ đạo, đáp ứng vị trí, sai số và lệnh vận tốc.
+5. Follower lưu telemetry theo từng mẫu vào CSV; plotter hiển thị quỹ đạo, đáp ứng vị trí, sai số và tín hiệu điều khiển `u_x`, `u_y`, `u_yaw`. Với PID, `u` là vận tốc (m/s, rad/s); với SMC/MPC, `u` là gia tốc ảo (m/s², rad/s²). Đồ thị hiển thị dữ liệu thô mảnh và trung bình trượt 7 mẫu đậm.
 
 Mỗi lượt bắt đầu tại vị trí ban đầu của robot. Quỹ đạo cục bộ `(x_r, y_r)` được quay theo yaw ban đầu rồi tịnh tiến về `(x_0,y_0)`:
 

@@ -49,7 +49,7 @@ class TrajectoryPlotter(Node):
             sample = tuple(message.data[:11])
             self._samples.append(sample)
             smooth = []
-            for filter_buffer, column in zip(self._filters, range(5, 8)):
+            for filter_buffer, column in zip(self._filters, range(8, 11)):
                 filter_buffer.append(sample[column])
                 smooth.append(sum(filter_buffer) / len(filter_buffer))
             self._smoothed.append(tuple(smooth))
@@ -143,27 +143,31 @@ def main():
     ax_command.grid(True)
     ax_command.legend(loc="best")
 
-    command_colors = [matlab_colors["blue"], matlab_colors["orange"]]
-    command_raw_lines = [
+    linear_unit = "m/s" if node.trajectory_law == "PID" else "m/s²"
+    yaw_unit = "rad/s" if node.trajectory_law == "PID" else "rad/s²"
+    control_raw_lines = [
         ax_acceleration.plot([], [], color=color, linewidth=0.65, alpha=0.22, label="_nolegend_")[0]
-        for color in command_colors
+        for color in (matlab_colors["blue"], matlab_colors["orange"])
     ]
-    command_lines = [
+    control_lines = [
         ax_acceleration.plot([], [], color=color, label=label)[0]
-        for color, label in zip(command_colors, ("cmd vx [m/s]", "cmd vy [m/s]"))
+        for color, label in zip(
+            (matlab_colors["blue"], matlab_colors["orange"]),
+            (f"u_x ({linear_unit})", f"u_y ({linear_unit})"),
+        )
     ]
-    ax_acceleration.set_title("Commanded velocity")
+    ax_acceleration.set_title("Controller output u")
     ax_acceleration.set_xlabel("simulation time [s]")
-    ax_acceleration.set_ylabel("linear velocity [m/s]")
+    ax_acceleration.set_ylabel(f"linear control output [{linear_unit}]")
     ax_acceleration.grid(True)
     ax_yaw_command = ax_acceleration.twinx()
-    yaw_command_line, = ax_yaw_command.plot(
-        [], [], color=matlab_colors["green"], label="cmd yaw rate [rad/s]"
+    yaw_control_line, = ax_yaw_command.plot(
+        [], [], color=matlab_colors["green"], label=f"u_yaw ({yaw_unit})"
     )
-    ax_yaw_command.set_ylabel("yaw rate [rad/s]")
+    ax_yaw_command.set_ylabel(f"yaw control output [{yaw_unit}]")
     ax_yaw_command.grid(False)
-    command_handles = command_lines + [yaw_command_line]
-    ax_acceleration.legend(command_handles, [line.get_label() for line in command_handles], loc="best")
+    control_handles = control_lines + [yaw_control_line]
+    ax_acceleration.legend(control_handles, [line.get_label() for line in control_handles], loc="best")
 
     xy_limits_set = False
     position_limits_set = False
@@ -203,22 +207,24 @@ def main():
         error_lines[0].set_data(t, error_x)
         error_lines[1].set_data(t, error_y)
         error_lines[2].set_data(t, error_norm)
-        smooth_command_data = [[row[column] for row in smoothed] for column in range(3)]
-        for index, raw_line in enumerate(command_raw_lines):
-            raw_line.set_data(t, [row[index + 5] for row in samples])
-        for smooth_line, values in zip(command_lines, smooth_command_data[:2]):
+        smooth_control_data = [[row[column] for row in smoothed] for column in range(3)]
+        for index, raw_line in enumerate(control_raw_lines):
+            raw_line.set_data(t, [row[index + 8] for row in samples])
+        for smooth_line, values in zip(control_lines, smooth_control_data[:2]):
             smooth_line.set_data(t, values)
-        yaw_command_line.set_data(t, smooth_command_data[2])
+        yaw_control_line.set_data(t, smooth_control_data[2])
 
         left, right = t[0], max(t[-1], t[0] + 1e-3)
         for axis in (ax_position, ax_command, ax_acceleration):
             axis.set_xlim(left, right + 0.05)
         ax_command.set_ylim(-0.20, 0.20)
-        ax_acceleration.set_ylim(-0.14, 0.14)
-        ax_yaw_command.set_ylim(-0.22, 0.22)
+        linear_limit = max(0.15, 1.10 * max(abs(value) for row in samples for value in row[8:10]))
+        yaw_limit = max(0.20, 1.10 * max(abs(row[10]) for row in samples))
+        ax_acceleration.set_ylim(-linear_limit, linear_limit)
+        ax_yaw_command.set_ylim(-yaw_limit, yaw_limit)
         figure.suptitle(f"Go2 {node.trajectory_law} trajectory and controller response")
         return [reference_xy, actual_xy, *position_lines, *error_lines,
-                *command_raw_lines, *command_lines, yaw_command_line]
+                *control_raw_lines, *control_lines, yaw_control_line]
 
     figure.tight_layout(rect=(0.0, 0.0, 1.0, 0.96))
     animation = FuncAnimation(figure, update, interval=500, blit=False, cache_frame_data=False)

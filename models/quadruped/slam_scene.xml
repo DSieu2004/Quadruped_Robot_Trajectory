@@ -1,0 +1,16 @@
+<mujoco model="Go2 large indoor SLAM arena 10 x 8 m">
+  <include file="scene.xml"/>
+  <!-- Group 4 is ray-visible static environment; robot visuals/collisions remain upstream. -->
+  <worldbody>
+    <!-- Wall center lines: x=-4..6, y=-4..4. Clear floor: 9.84 x 7.84 m. -->
+    <geom name="north_wall" type="box" pos="1 4 0.6" size="5.08 0.08 0.6" group="4" rgba="0.75 0.79 0.85 1"/>
+    <geom name="south_wall" type="box" pos="1 -4 0.6" size="5.08 0.08 0.6" group="4" rgba="0.75 0.79 0.85 1"/>
+    <geom name="west_wall" type="box" pos="-4 0 0.6" size="0.08 4 0.6" group="4" rgba="0.75 0.79 0.85 1"/>
+    <geom name="east_wall" type="box" pos="6 0 0.6" size="0.08 4 0.6" group="4" rgba="0.75 0.79 0.85 1"/>
+    <geom name="partition" type="box" pos="1.05 0.25 0.45" size="0.10 0.55 0.45" group="4" rgba="0.9 0.55 0.2 1"/>
+    <geom name="pillar" type="cylinder" pos="-1.7 1.2 0.45" size="0.25 0.45" group="4" rgba="0.2 0.6 0.75 1"/>
+    <geom name="east_block" type="box" pos="3.4 1.1 0.5" size="0.45 0.55 0.5" group="4" rgba="0.45 0.65 0.3 1"/>
+    <geom name="north_pillar" type="cylinder" pos="1 2.2 0.45" size="0.22 0.45" group="4" rgba="0.2 0.6 0.75 1"/>
+    <geom name="south_partition" type="box" pos="0.3 -2 0.45" size="0.65 0.12 0.45" group="4" rgba="0.9 0.55 0.2 1"/>
+  </worldbody>
+</mujoco>

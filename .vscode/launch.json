@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug MuJoCo viewer",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/quadruped_viewer",
+      "cwd": "${workspaceFolder}",
+      "args": [],
+      "MIMode": "gdb",
+      "preLaunchTask": "CMake: build",
+      "externalConsole": false
+    }
+  ]
+}

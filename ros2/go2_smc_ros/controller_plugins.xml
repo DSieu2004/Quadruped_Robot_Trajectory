@@ -1,0 +1,5 @@
+<library path="go2_path_controller">
+  <class name="go2_smc_ros::SmcPathController" type="go2_smc_ros::SmcPathController" base_class_type="nav2_core::Controller">
+    <description>Holonomic SMC path tracking with local footprint collision prediction.</description>
+  </class>
+</library>

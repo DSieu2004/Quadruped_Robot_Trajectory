@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.22)
+project(smc_consumer LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+find_package(QuadrupedControl CONFIG REQUIRED)
+add_executable(smc_consumer ../smc_channel.cpp)
+target_link_libraries(smc_consumer PRIVATE quadruped::smc)
+add_executable(pid_consumer ../pid_channel.cpp)
+target_link_libraries(pid_consumer PRIVATE quadruped::pid)

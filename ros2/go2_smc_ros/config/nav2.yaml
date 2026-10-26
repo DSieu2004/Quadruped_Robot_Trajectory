@@ -1,0 +1,178 @@
+amcl:
+  ros__parameters:
+    use_sim_time: true
+    base_frame_id: base_footprint
+    global_frame_id: map
+    odom_frame_id: odom
+    scan_topic: scan
+    robot_model_type: nav2_amcl::OmniMotionModel
+    min_particles: 400
+    max_particles: 1200
+    max_beams: 120
+    alpha1: 0.03
+    alpha2: 0.03
+    alpha3: 0.03
+    alpha4: 0.03
+    alpha5: 0.03
+    laser_model_type: likelihood_field
+    laser_likelihood_max_dist: 1.0
+    laser_max_range: 12.0
+    laser_min_range: 0.08
+    sigma_hit: 0.08
+    z_hit: 0.9
+    z_rand: 0.1
+    z_max: 0.0
+    z_short: 0.0
+    update_min_d: 0.02
+    update_min_a: 0.02
+    transform_tolerance: 0.5
+    set_initial_pose: true
+    initial_pose: {x: 0.0, y: 0.0, z: 0.0, yaw: 0.0}
+map_server:
+  ros__parameters:
+    use_sim_time: true
+    yaml_filename: ""
+map_saver:
+  ros__parameters:
+    use_sim_time: true
+    save_map_timeout: 10.0
+    free_thresh_default: 0.25
+    occupied_thresh_default: 0.65
+    map_subscribe_transient_local: true
+planner_server:
+  ros__parameters:
+    use_sim_time: true
+    expected_planner_frequency: 2.0
+    planner_plugins: [GridBased]
+    GridBased:
+      plugin: nav2_navfn_planner/NavfnPlanner
+      tolerance: 0.1
+      use_astar: true
+      allow_unknown: false
+controller_server:
+  ros__parameters:
+    use_sim_time: true
+    controller_frequency: 10.0
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.001
+    min_theta_velocity_threshold: 0.001
+    failure_tolerance: 1.0
+    progress_checker_plugin: progress_checker
+    goal_checker_plugins: [goal_checker]
+    controller_plugins: [FollowPath]
+    progress_checker:
+      plugin: nav2_controller::PoseProgressChecker
+      required_movement_radius: 0.06
+      required_movement_angle: 0.10
+      movement_time_allowance: 12.0
+    goal_checker:
+      plugin: nav2_controller::SimpleGoalChecker
+      xy_goal_tolerance: 0.12
+      yaw_goal_tolerance: 0.08
+      stateful: false
+    FollowPath:
+      plugin: go2_smc_ros::SmcPathController
+      control_law: smc
+      max_speed: 0.10
+      lookahead: 0.22
+      lambda: 3.0
+      linear_gain: 3.0
+      switching_gain: 0.12
+      boundary_layer: 0.22
+      acceleration_limit: 0.15
+      max_yaw_rate: 0.18
+      rotate_threshold: 0.55
+      align_goal_distance: 0.10
+      yaw_lambda: 3.0
+      yaw_linear_gain: 3.0
+      yaw_switching_gain: 0.10
+      yaw_boundary_layer: 0.18
+      yaw_acceleration_limit: 0.35
+      pid_kp: 16.0
+      pid_ki: 0.4
+      pid_kd: 8.0
+      pid_yaw_kp: 16.0
+      pid_yaw_ki: 0.4
+      pid_yaw_kd: 8.0
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      use_sim_time: true
+      global_frame: odom
+      robot_base_frame: base_footprint
+      update_frequency: 10.0
+      publish_frequency: 2.0
+      rolling_window: true
+      width: 4
+      height: 4
+      resolution: 0.05
+      robot_radius: 0.36
+      transform_tolerance: 0.5
+      plugins: [obstacle_layer, inflation_layer]
+      obstacle_layer:
+        plugin: nav2_costmap_2d::ObstacleLayer
+        observation_sources: scan
+        scan:
+          topic: /scan
+          data_type: LaserScan
+          marking: true
+          clearing: true
+          max_obstacle_height: 2.0
+          obstacle_max_range: 11.5
+          obstacle_min_range: 0.08
+          raytrace_max_range: 12.0
+          raytrace_min_range: 0.08
+      inflation_layer:
+        plugin: nav2_costmap_2d::InflationLayer
+        inflation_radius: 0.50
+        cost_scaling_factor: 5.0
+      always_send_full_costmap: true
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      use_sim_time: true
+      global_frame: map
+      robot_base_frame: base_footprint
+      update_frequency: 2.0
+      publish_frequency: 1.0
+      resolution: 0.05
+      robot_radius: 0.36
+      transform_tolerance: 0.5
+      track_unknown_space: true
+      plugins: [static_layer, obstacle_layer, inflation_layer]
+      static_layer:
+        plugin: nav2_costmap_2d::StaticLayer
+        map_subscribe_transient_local: true
+      obstacle_layer:
+        plugin: nav2_costmap_2d::ObstacleLayer
+        observation_sources: scan
+        scan:
+          topic: /scan
+          data_type: LaserScan
+          marking: true
+          clearing: true
+          max_obstacle_height: 2.0
+          obstacle_max_range: 11.5
+          obstacle_min_range: 0.08
+          raytrace_max_range: 12.0
+          raytrace_min_range: 0.08
+      inflation_layer:
+        plugin: nav2_costmap_2d::InflationLayer
+        inflation_radius: 0.50
+        cost_scaling_factor: 5.0
+      always_send_full_costmap: true
+bt_navigator:
+  ros__parameters:
+    use_sim_time: true
+    global_frame: map
+    robot_base_frame: base_footprint
+    odom_topic: /odom
+    bt_loop_duration: 50
+    default_server_timeout: 1000
+    wait_for_service_timeout: 10000
+    plugin_lib_names:
+      - nav2_compute_path_to_pose_action_bt_node
+      - nav2_compute_path_through_poses_action_bt_node
+      - nav2_follow_path_action_bt_node
+      - nav2_rate_controller_bt_node
+      - nav2_pipeline_sequence_bt_node

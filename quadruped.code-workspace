@@ -1,0 +1,30 @@
+{
+  "folders": [{ "name": "Go2 workspace", "path": "." }],
+  "settings": {
+    "cmake.useCMakePresets": "always",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/ros2_build/go2_smc_ros/compile_commands.json",
+    "files.exclude": {
+      "**/build": true,
+      "**/ros2_build": true,
+      "**/ros2_install": true,
+      "**/ros2_logs": true,
+      "third_party": true,
+      "logs": true
+    },
+    "search.exclude": {
+      "**/build/**": true,
+      "**/ros2_build/**": true,
+      "**/ros2_install/**": true,
+      "**/ros2_logs/**": true,
+      "third_party/**": true,
+      "logs/**": true
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+      "CMakeLists.txt": "CMakePresets.json, CMakeUserPresets.json",
+      "*.urdf": "*.xacro",
+      "*.yaml": "*.pgm, *.posegraph, *.data"
+    }
+  },
+  "extensions": { "recommendations": ["ms-vscode.cpptools", "ms-vscode.cmake-tools"] }
+}

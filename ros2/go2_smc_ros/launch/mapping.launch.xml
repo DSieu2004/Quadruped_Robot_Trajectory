@@ -1,0 +1,20 @@
+<launch>
+  <arg name="headless" default="false"/>
+  <arg name="realtime_factor" default="1.0"/>
+  <arg name="rviz" default="true"/>
+  <arg name="explore" default="false"/>
+  <arg name="log_file" default=""/>
+  <include file="$(find-pkg-share go2_smc_ros)/launch/simulation.launch.xml">
+    <arg name="headless" value="$(var headless)"/>
+    <arg name="realtime_factor" value="$(var realtime_factor)"/>
+    <arg name="rviz" value="$(var rviz)"/>
+    <arg name="log_file" value="$(var log_file)"/>
+  </include>
+  <node pkg="slam_toolbox" exec="async_slam_toolbox_node" name="slam_toolbox" output="screen">
+    <param from="$(find-pkg-share go2_smc_ros)/config/slam.yaml"/>
+  </node>
+  <node pkg="go2_smc_ros" exec="mapping_driver" name="mapping_driver" if="$(var explore)" output="screen">
+    <param from="$(find-pkg-share go2_smc_ros)/config/mapping.yaml"/>
+    <param name="use_sim_time" value="true"/>
+  </node>
+</launch>

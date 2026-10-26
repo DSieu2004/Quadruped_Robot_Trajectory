@@ -1,0 +1,90 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Background Color: 35; 40; 48
+    Fixed Frame: odom
+    Frame Rate: 30
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.5
+      Plane Cell Count: 30
+      Color: 100; 100; 100
+    - Class: rviz_default_plugins/RobotModel
+      Name: Unitree Go2
+      Enabled: true
+      Visual Enabled: true
+      Collision Enabled: false
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Depth: 1
+      Links:
+        All Links Enabled: true
+      Update Interval: 0
+    - Class: rviz_default_plugins/Path
+      Name: Timestamped reference
+      Enabled: true
+      Topic:
+        Value: /trajectory/reference
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Depth: 1
+      Line Style: Lines
+      Line Width: 0.035
+      Color: 40; 220; 80
+    - Class: rviz_default_plugins/Path
+      Name: Robot actual trajectory
+      Enabled: true
+      Topic:
+        Value: /trajectory/actual
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Depth: 1
+      Line Style: Lines
+      Line Width: 0.045
+      Color: 255; 100; 40
+    - Class: rviz_default_plugins/LaserScan
+      Name: LiDAR
+      Enabled: true
+      Topic:
+        Value: /scan
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 5
+      Color Transformer: FlatColor
+      Color: 100; 180; 255
+      Position Transformer: XYZ
+      Size (Pixels): 2
+      Size (m): 0.015
+      Style: Points
+      Decay Time: 0.1
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: false
+      Show Names: true
+      Marker Scale: 0.2
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+  Views:
+    Current:
+      Class: rviz_default_plugins/TopDownOrtho
+      Scale: 8
+      Angle: 0
+      X: 0
+      Y: 0
+      Target Frame: odom
+Window Geometry:
+  Width: 1100
+  Height: 800

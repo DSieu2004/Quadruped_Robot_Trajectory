@@ -1,0 +1,5 @@
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+find_dependency(Eigen3 3.3 NO_MODULE)
+include("${CMAKE_CURRENT_LIST_DIR}/QuadrupedControlTargets.cmake")
+check_required_components(QuadrupedControl)

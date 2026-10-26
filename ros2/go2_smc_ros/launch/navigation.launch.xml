@@ -1,0 +1,40 @@
+<launch>
+  <arg name="map" default="$(find-pkg-share go2_smc_ros)/../../../../maps/go2_slam.yaml"/>
+  <arg name="headless" default="false"/>
+  <arg name="realtime_factor" default="1.0"/>
+  <arg name="rviz" default="true"/>
+  <arg name="log_file" default=""/>
+  <arg name="control_law" default="smc"/>
+  <include file="$(find-pkg-share go2_smc_ros)/launch/simulation.launch.xml">
+    <arg name="headless" value="$(var headless)"/>
+    <arg name="realtime_factor" value="$(var realtime_factor)"/>
+    <arg name="rviz" value="$(var rviz)"/>
+    <arg name="log_file" value="$(var log_file)"/>
+    <arg name="control_law" value="$(var control_law)"/>
+  </include>
+  <node pkg="nav2_map_server" exec="map_server" name="map_server" output="screen">
+    <param from="$(find-pkg-share go2_smc_ros)/config/nav2.yaml"/>
+    <param name="yaml_filename" value="$(var map)"/>
+  </node>
+  <node pkg="nav2_amcl" exec="amcl" name="amcl" output="screen">
+    <param from="$(find-pkg-share go2_smc_ros)/config/nav2.yaml"/>
+  </node>
+  <node pkg="nav2_planner" exec="planner_server" name="planner_server" output="screen">
+    <param from="$(find-pkg-share go2_smc_ros)/config/nav2.yaml"/>
+  </node>
+  <node pkg="nav2_controller" exec="controller_server" name="controller_server" output="screen">
+    <param from="$(find-pkg-share go2_smc_ros)/config/nav2.yaml"/>
+    <param name="FollowPath.control_law" value="$(var control_law)"/>
+  </node>
+  <node pkg="nav2_bt_navigator" exec="bt_navigator" name="bt_navigator" output="screen">
+    <param from="$(find-pkg-share go2_smc_ros)/config/nav2.yaml"/>
+    <param name="default_nav_to_pose_bt_xml" value="$(find-pkg-share go2_smc_ros)/config/navigate.xml"/>
+    <param name="default_nav_through_poses_bt_xml" value="$(find-pkg-share go2_smc_ros)/config/navigate_through.xml"/>
+  </node>
+  <node pkg="nav2_lifecycle_manager" exec="lifecycle_manager" name="lifecycle_manager_navigation" output="screen">
+    <param name="use_sim_time" value="true"/>
+    <param name="autostart" value="true"/>
+    <param name="node_names" value="['map_server', 'amcl', 'planner_server', 'controller_server', 'bt_navigator']"/>
+    <param name="bond_timeout" value="10.0"/>
+  </node>
+</launch>

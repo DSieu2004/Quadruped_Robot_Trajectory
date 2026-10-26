@@ -1,0 +1,26 @@
+<launch>
+  <arg name="headless" default="false"/>
+  <arg name="realtime_factor" default="1.0"/>
+  <arg name="rviz" default="true"/>
+  <arg name="log_file" default=""/>
+  <arg name="control_law" default="smc"/>
+  <arg name="trajectory_control_law" default=""/>
+  <arg name="clear_environment" default="false"/>
+  <arg name="trajectory_command_acceleration" default="0.15"/>
+  <node pkg="go2_smc_ros" exec="mujoco_bridge" name="mujoco_bridge" output="screen">
+    <param name="headless" value="$(var headless)"/>
+    <param name="realtime_factor" value="$(var realtime_factor)"/>
+    <param name="log_file" value="$(var log_file)" type="str"/>
+    <param name="control_law" value="$(var control_law)"/>
+    <param name="trajectory_control_law" value="$(var trajectory_control_law)" type="str"/>
+    <param name="clear_environment" value="$(var clear_environment)"/>
+    <param name="trajectory_command_acceleration" value="$(var trajectory_command_acceleration)" type="float"/>
+  </node>
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" name="robot_state_publisher" output="screen">
+    <param name="use_sim_time" value="true"/>
+    <param name="robot_description" value="$(command 'cat $(find-pkg-share go2_smc_ros)/urdf/go2.urdf')"/>
+  </node>
+  <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share go2_smc_ros)/config/go2.rviz" if="$(var rviz)" output="screen">
+    <param name="use_sim_time" value="true"/>
+  </node>
+</launch>

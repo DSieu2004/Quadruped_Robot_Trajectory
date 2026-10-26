@@ -1,0 +1,15 @@
+/build/
+/third_party/
+/MUJOCO_LOG.TXT
+/logs/
+/install/
+/ros2_build/
+/ros2_install/
+/ros2_logs/
+/__pycache__/
+**/__pycache__/
+*.py[cod]
+/CMakeUserPresets.json
+/.aws/
+/.agents/
+/.codex/

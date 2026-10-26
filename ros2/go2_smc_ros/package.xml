@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>go2_smc_ros</name><version>0.2.0</version>
+  <description>MuJoCo Go2, C++ SMC, LiDAR, SLAM Toolbox and Nav2.</description>
+  <maintainer email="maintainer@example.com">Go2 SMC project</maintainer>
+  <license>BSD-3-Clause</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend><depend>rclcpp_action</depend>
+  <depend>sensor_msgs</depend><depend>geometry_msgs</depend><depend>nav_msgs</depend>
+  <depend>rosgraph_msgs</depend><depend>std_msgs</depend><depend>tf2_ros</depend>
+  <depend>nav2_msgs</depend>
+  <exec_depend>rclpy</exec_depend><exec_depend>python3-matplotlib</exec_depend>
+  <depend>lifecycle_msgs</depend>
+  <depend>nav2_core</depend><depend>nav2_costmap_2d</depend><depend>pluginlib</depend><depend>tf2_geometry_msgs</depend>
+  <exec_depend>robot_state_publisher</exec_depend><exec_depend>rviz2</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend><exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>launch_xml</exec_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>

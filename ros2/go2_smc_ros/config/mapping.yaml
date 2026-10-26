@@ -1,0 +1,7 @@
+mapping_driver:
+  ros__parameters:
+    use_sim_time: true
+    cruise_speed: 0.10
+    # Safe survey loop for the 10 x 8 m arena, ending at the initial pose.
+    route_x: [-2.9, 4.9, 4.9, -2.9, -2.9, 0.0]
+    route_y: [-2.9, -2.9, 2.9, 2.9, -2.9, 0.0]

@@ -1,0 +1,164 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CMake: configure",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--preset", "dev"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: build",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "--preset", "dev"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "CMake: configure",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "C++: build control libraries",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "--preset", "dev"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "MuJoCo: viewer",
+      "type": "shell",
+      "command": "${workspaceFolder}/build/quadruped_viewer",
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "CMake: build",
+      "problemMatcher": []
+    },
+    {
+      "label": "MuJoCo: SMC navigation",
+      "type": "shell",
+      "command": "${workspaceFolder}/build/quadruped_viewer",
+      "args": ["--controller", "navigate", "--autostart"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "CMake: build",
+      "problemMatcher": []
+    },
+    {
+      "label": "MuJoCo: SMC stand",
+      "type": "shell",
+      "command": "${workspaceFolder}/build/quadruped_viewer",
+      "args": ["--controller", "stand", "--autostart"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "CMake: build",
+      "problemMatcher": []
+    },
+    {
+      "label": "MuJoCo: PID navigation",
+      "type": "shell",
+      "command": "${workspaceFolder}/build/quadruped_viewer",
+      "args": ["--controller", "navigate", "--control-law", "pid", "--autostart"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "CMake: build",
+      "problemMatcher": []
+    },
+    {
+      "label": "MuJoCo: PID stand",
+      "type": "shell",
+      "command": "${workspaceFolder}/build/quadruped_viewer",
+      "args": ["--controller", "stand", "--control-law", "pid", "--autostart"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "CMake: build",
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: test",
+      "type": "shell",
+      "command": "ctest",
+      "args": ["--preset", "dev"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "CMake: build",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "C++: run PID library example",
+      "type": "shell",
+      "command": "${workspaceFolder}/build/pid_example",
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "CMake: build",
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS 2: build Go2",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/build_ros.bash"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "ROS 2: SLAM MuJoCo + RViz",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/run_mapping.bash"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "ROS 2: build Go2",
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS 2: save SLAM map",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/save_map.bash"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS 2: Nav2 MuJoCo + RViz",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/run_navigation.bash"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "ROS 2: build Go2",
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS 2: Nav2 MuJoCo + RViz (PID)",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/run_navigation.bash", "control_law:=pid"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "ROS 2: build Go2",
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS 2: SMC timed circle trajectory",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/run_trajectory.bash", "shape:=circle"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "ROS 2: build Go2",
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS 2: PID timed lemniscate trajectory",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/run_trajectory.bash", "shape:=lemniscate", "control_law:=pid"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "ROS 2: build Go2",
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS 2: PID timed circle trajectory",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/run_trajectory.bash", "shape:=circle", "control_law:=pid", "radius:=1.5", "period:=100"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "ROS 2: build Go2",
+      "problemMatcher": []
+    }
+  ]
+}

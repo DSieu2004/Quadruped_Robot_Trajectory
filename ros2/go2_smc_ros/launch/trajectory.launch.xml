@@ -1,0 +1,94 @@
+<launch>
+  <arg name="headless" default="false"/>
+  <arg name="realtime_factor" default="2.0"/>
+  <arg name="rviz" default="true"/>
+  <arg name="plot" default="true"/>
+  <arg name="trajectory_law" default="smc"/>
+  <arg name="robot_control_law" default="smc"/>
+  <arg name="shape" default="circle"/>
+  <arg name="period" default="120.0"/>
+  <arg name="cycles" default="1.0"/>
+  <arg name="start_delay" default="2.0"/>
+  <arg name="radius" default="1.5"/>
+  <arg name="semi_axis_x" default="1.2"/>
+  <arg name="semi_axis_y" default="0.75"/>
+  <arg name="max_speed" default="0.12"/>
+  <arg name="smc_velocity_filter_tau" default="0.25"/>
+  <arg name="smc_yaw_rate_filter_tau" default="0.30"/>
+  <arg name="mpc_velocity_filter_tau" default="0.25"/>
+  <arg name="mpc_yaw_rate_filter_tau" default="0.30"/>
+  <arg name="mpc_horizon" default="15"/>
+  <arg name="mpc_position_weight" default="20.0"/>
+  <arg name="mpc_velocity_weight" default="3.0"/>
+  <arg name="mpc_acceleration_weight" default="0.5"/>
+  <arg name="mpc_acceleration_change_weight" default="2.0"/>
+  <arg name="mpc_acceleration_change_limit" default="0.04"/>
+  <arg name="mpc_yaw_position_weight" default="8.0"/>
+  <arg name="mpc_yaw_velocity_weight" default="2.0"/>
+  <arg name="mpc_yaw_acceleration_weight" default="3.0"/>
+  <arg name="mpc_yaw_acceleration_change_weight" default="2.0"/>
+  <arg name="mpc_yaw_acceleration_change_limit" default="0.06"/>
+  <arg name="acceleration_limit" default="0.15"/>
+  <arg name="lambda" default="2.0"/>
+  <arg name="linear_gain" default="1.5"/>
+  <arg name="switching_gain" default="0.04"/>
+  <arg name="boundary_layer" default="0.45"/>
+  <arg name="yaw_lambda" default="3.0"/>
+  <arg name="yaw_linear_gain" default="2.5"/>
+  <arg name="yaw_switching_gain" default="0.08"/>
+  <arg name="yaw_boundary_layer" default="0.18"/>
+  <arg name="output_csv" default=""/>
+  <include file="$(find-pkg-share go2_smc_ros)/launch/simulation.launch.xml">
+    <arg name="headless" value="$(var headless)"/>
+    <arg name="realtime_factor" value="$(var realtime_factor)"/>
+    <arg name="rviz" value="false"/>
+    <arg name="control_law" value="$(var robot_control_law)"/>
+    <arg name="trajectory_control_law" value="$(var trajectory_law)"/>
+    <arg name="clear_environment" value="true"/>
+    <arg name="trajectory_command_acceleration" value="$(var acceleration_limit)"/>
+  </include>
+  <node pkg="go2_smc_ros" exec="trajectory_follower" name="trajectory_follower" output="screen">
+    <param name="use_sim_time" value="true"/>
+    <param name="control_law" value="$(var trajectory_law)"/>
+    <param name="shape" value="$(var shape)"/>
+    <param name="period" value="$(var period)" type="float"/>
+    <param name="cycles" value="$(var cycles)" type="float"/>
+    <param name="start_delay" value="$(var start_delay)" type="float"/>
+    <param name="radius" value="$(var radius)" type="float"/>
+    <param name="semi_axis_x" value="$(var semi_axis_x)" type="float"/>
+    <param name="semi_axis_y" value="$(var semi_axis_y)" type="float"/>
+    <param name="max_speed" value="$(var max_speed)" type="float"/>
+    <param name="smc_velocity_filter_tau" value="$(var smc_velocity_filter_tau)" type="float"/>
+    <param name="smc_yaw_rate_filter_tau" value="$(var smc_yaw_rate_filter_tau)" type="float"/>
+    <param name="mpc_velocity_filter_tau" value="$(var mpc_velocity_filter_tau)" type="float"/>
+    <param name="mpc_yaw_rate_filter_tau" value="$(var mpc_yaw_rate_filter_tau)" type="float"/>
+    <param name="mpc_horizon" value="$(var mpc_horizon)" type="int"/>
+    <param name="mpc_position_weight" value="$(var mpc_position_weight)" type="float"/>
+    <param name="mpc_velocity_weight" value="$(var mpc_velocity_weight)" type="float"/>
+    <param name="mpc_acceleration_weight" value="$(var mpc_acceleration_weight)" type="float"/>
+    <param name="mpc_acceleration_change_weight" value="$(var mpc_acceleration_change_weight)" type="float"/>
+    <param name="mpc_acceleration_change_limit" value="$(var mpc_acceleration_change_limit)" type="float"/>
+    <param name="mpc_yaw_position_weight" value="$(var mpc_yaw_position_weight)" type="float"/>
+    <param name="mpc_yaw_velocity_weight" value="$(var mpc_yaw_velocity_weight)" type="float"/>
+    <param name="mpc_yaw_acceleration_weight" value="$(var mpc_yaw_acceleration_weight)" type="float"/>
+    <param name="mpc_yaw_acceleration_change_weight" value="$(var mpc_yaw_acceleration_change_weight)" type="float"/>
+    <param name="mpc_yaw_acceleration_change_limit" value="$(var mpc_yaw_acceleration_change_limit)" type="float"/>
+    <param name="acceleration_limit" value="$(var acceleration_limit)" type="float"/>
+    <param name="lambda" value="$(var lambda)" type="float"/>
+    <param name="linear_gain" value="$(var linear_gain)" type="float"/>
+    <param name="switching_gain" value="$(var switching_gain)" type="float"/>
+    <param name="boundary_layer" value="$(var boundary_layer)" type="float"/>
+    <param name="yaw_lambda" value="$(var yaw_lambda)" type="float"/>
+    <param name="yaw_linear_gain" value="$(var yaw_linear_gain)" type="float"/>
+    <param name="yaw_switching_gain" value="$(var yaw_switching_gain)" type="float"/>
+    <param name="yaw_boundary_layer" value="$(var yaw_boundary_layer)" type="float"/>
+    <param name="output_csv" value="$(var output_csv)" type="str"/>
+  </node>
+  <node pkg="go2_smc_ros" exec="trajectory_plotter.py" name="trajectory_plotter" output="screen" if="$(var plot)">
+    <param name="use_sim_time" value="true"/>
+    <param name="trajectory_law" value="$(var trajectory_law)" type="str"/>
+  </node>
+  <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share go2_smc_ros)/config/trajectory.rviz" if="$(var rviz)" output="screen">
+    <param name="use_sim_time" value="true"/>
+  </node>
+</launch>

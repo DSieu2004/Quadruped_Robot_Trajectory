@@ -4,13 +4,14 @@
   <arg name="realtime_factor" default="1.0"/>
   <arg name="rviz" default="true"/>
   <arg name="log_file" default=""/>
-  <arg name="control_law" default="smc"/>
+  <arg name="path_control_law" default="smc"/>
+  <arg name="robot_control_law" default="smc"/>
   <include file="$(find-pkg-share go2_smc_ros)/launch/simulation.launch.xml">
     <arg name="headless" value="$(var headless)"/>
     <arg name="realtime_factor" value="$(var realtime_factor)"/>
     <arg name="rviz" value="$(var rviz)"/>
     <arg name="log_file" value="$(var log_file)"/>
-    <arg name="control_law" value="$(var control_law)"/>
+    <arg name="control_law" value="$(var robot_control_law)"/>
   </include>
   <node pkg="nav2_map_server" exec="map_server" name="map_server" output="screen">
     <param from="$(find-pkg-share go2_smc_ros)/config/nav2.yaml"/>
@@ -24,7 +25,7 @@
   </node>
   <node pkg="nav2_controller" exec="controller_server" name="controller_server" output="screen">
     <param from="$(find-pkg-share go2_smc_ros)/config/nav2.yaml"/>
-    <param name="FollowPath.control_law" value="$(var control_law)"/>
+    <param name="FollowPath.control_law" value="$(var path_control_law)" type="str"/>
   </node>
   <node pkg="nav2_bt_navigator" exec="bt_navigator" name="bt_navigator" output="screen">
     <param from="$(find-pkg-share go2_smc_ros)/config/nav2.yaml"/>

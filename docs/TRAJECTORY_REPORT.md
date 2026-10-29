@@ -188,7 +188,7 @@ RMS_xy = sqrt(mean(e_xy²))
 max_xy = max(e_xy)
 ```
 
-Đồ thị so sánh chỉ hiển thị các đại lượng trực tiếp hữu ích: đường XY tham chiếu và ba đường robot, độ lớn sai số theo thời gian, `e_x` và `e_y`. Mốc sau thời lượng đường cộng thêm 2 giây dừng không tính vào thống kê. Biểu đồ mới: [circle PID/SMC/MPC](../logs/trajectory_circle_pid_vs_smc_vs_mpc.png), [lemniscate PID/SMC/MPC](../logs/trajectory_lemniscate_pid_vs_smc_vs_mpc.png).
+Đồ thị so sánh sai số hiển thị đường XY tham chiếu/thực, độ lớn sai số, `e_x` và `e_y`; mốc sau thời lượng quỹ đạo cộng thêm 2 giây giữ vị trí không tính vào thống kê. Đồ thị đáp ứng điều khiển được lưu riêng, mỗi controller một subplot với `u_x`, `u_y`, `u_yaw`. PID dùng vận tốc (m/s, rad/s); SMC/MPC dùng gia tốc ảo (m/s², rad/s²), nên các đường không chồng lên cùng một trục đơn vị. Biểu đồ: [circle sai số](../logs/trajectory_circle_pid_vs_smc_vs_mpc.png), [circle tín hiệu điều khiển](../logs/trajectory_circle_pid_vs_smc_vs_mpc_controller_response.png), [lemniscate sai số](../logs/trajectory_lemniscate_pid_vs_smc_vs_mpc.png), [lemniscate tín hiệu điều khiển](../logs/trajectory_lemniscate_pid_vs_smc_vs_mpc_controller_response.png).
 
 ## 7. Hình ảnh mô phỏng
 
@@ -218,6 +218,18 @@ Chèn screenshot MuJoCo/RViz vào các vị trí dưới đây. Khi ảnh đã �
 
 *Hình 3. Kết quả mô phỏng và đáp ứng bám quỹ đạo của PID/SMC/MPC.*
 
+### 7.4 Đáp ứng tín hiệu điều khiển
+
+Các hình dưới đây bổ sung đáp ứng `u_x`, `u_y`, `u_yaw` theo thời gian cho từng bộ bám. Mỗi controller có subplot và đơn vị riêng để không trộn output vận tốc PID với gia tốc ảo SMC/MPC.
+
+![Đáp ứng tín hiệu điều khiển trên quỹ đạo circle](../logs/trajectory_circle_pid_vs_smc_vs_mpc_controller_response.png)
+
+*Hình 4. Tín hiệu điều khiển PID, SMC và MPC khi bám circle.*
+
+![Đáp ứng tín hiệu điều khiển trên quỹ đạo lemniscate](../logs/trajectory_lemniscate_pid_vs_smc_vs_mpc_controller_response.png)
+
+*Hình 5. Tín hiệu điều khiển PID, SMC và MPC khi bám lemniscate.*
+
 ## 8. Kết quả mô phỏng đã ghi
 
 Các lượt dưới đây dùng cùng hình học cho mỗi dạng đường, scene phẳng đã tắt vật cản tĩnh và bridge Go2 SMC low-level. Lưu ý các CSV MPC trong bảng được tạo trước khi MPC được nối vào tầng low-level; chúng là kết quả trajectory MPC + low-level SMC. Full-MPC low-level đã được tích hợp thử nhưng hiện chưa ổn định khi contact chuyển pha; chưa dùng nó để tạo benchmark. Nguyên nhân là MPC theo từng kênh chưa mô hình hóa ràng buộc tiếp xúc và phân bố lực toàn thân trong horizon. RMS là căn trung bình bình phương độ lớn sai số XY; `max` là sai số XY lớn nhất trên thời lượng quỹ đạo. Dữ liệu PID/SMC/MPC trong bảng chỉ so sánh trajectory law trên cùng low-level SMC.
@@ -225,13 +237,13 @@ Các lượt dưới đây dùng cùng hình học cho mỗi dạng đường, s
 | Quỹ đạo | Luật bám | RMS XY | Max XY | Sai số cuối | CSV |
 |---|---|---:|---:|---:|---|
 | Circle, `r=1.5 m`, `T=100 s` | SMC | 0.84 cm | 5.33 cm | 0.47 cm | [CSV SMC](../logs/trajectory_circle_smc_20261026_112708.csv) |
-| Circle, `r=1.5 m`, `T=100 s` | PID | 0.96 cm | 1.41 cm | 1.04 cm | [CSV PID](../logs/trajectory_circle_pid_20261026_105716.csv) |
-| Circle, `r=1.5 m`, `T=100 s` | MPC | 1.08 cm | 6.71 cm | 0.58 cm | [CSV MPC](../logs/trajectory_circle_mpc_20261026_114905.csv) |
-| Lemniscate, `a=1.2 m`, `b=0.75 m`, `T=120 s` | SMC | 0.63 cm | 3.54 cm | 0.07 cm | [CSV SMC](../logs/trajectory_lemniscate_smc_20261026_113234.csv) |
-| Lemniscate, `a=1.2 m`, `b=0.75 m`, `T=120 s` | PID | 0.57 cm | 1.94 cm | 0.71 cm | [CSV PID](../logs/trajectory_lemniscate_pid_20261026_110441.csv) |
-| Lemniscate, `a=1.2 m`, `b=0.75 m`, `T=120 s` | MPC | 0.66 cm | 3.45 cm | 0.13 cm | [CSV MPC](../logs/trajectory_lemniscate_mpc_20261026_115007.csv) |
+| Circle, `r=1.5 m`, `T=100 s` | PID | 1.34 cm | 4.37 cm | 1.19 cm | [CSV PID](../logs/trajectory_circle_pid_20261026_214639.csv) |
+| Circle, `r=1.5 m`, `T=100 s` | MPC | 1.15 cm | 7.17 cm | 0.48 cm | [CSV MPC](../logs/trajectory_circle_mpc_20261026_122852.csv) |
+| Lemniscate, `a=1.2 m`, `b=0.75 m`, `T=120 s` | SMC | 0.68 cm | 3.54 cm | 0.40 cm | [CSV SMC](../logs/trajectory_lemniscate_smc_20261026_113234.csv) |
+| Lemniscate, `a=1.2 m`, `b=0.75 m`, `T=120 s` | PID | 0.95 cm | 5.30 cm | 0.98 cm | [CSV PID](../logs/trajectory_lemniscate_pid_20261026_150748.csv) |
+| Lemniscate, `a=1.2 m`, `b=0.75 m`, `T=120 s` | MPC | 1.59 cm | 9.47 cm | 0.52 cm | [CSV MPC](../logs/trajectory_lemniscate_mpc_20261026_144159.csv) |
 
-Trajectory MPC đã hoàn thành cả hai đường; với lemniscate, RMS của nó (0.66 cm) gần SMC (0.63 cm) và PID (0.57 cm). Trên circle, RMS là 1.08 cm; sai số lớn nhất 6.71 cm chủ yếu do transient đầu lượt. Đây là kết quả trajectory MPC với low-level SMC, không đại diện cho full-MPC. Full-MPC hiện ngã trong các lần thử low-level, nên chưa có benchmark full-stack đáng tin cậy.
+Trong các lượt được giữ lại, trajectory MPC có RMS 1.15 cm trên circle và 1.59 cm trên lemniscate. Các số này là benchmark bộ bám trajectory, không đại diện cho full-MPC. Full-MPC low-level vẫn chưa ổn định khi robot đi bộ, nên chưa có benchmark full-stack đáng tin cậy.
 
 ## 9. Chạy mô phỏng và tạo đồ thị so sánh
 
@@ -242,14 +254,14 @@ cd /home/dinhsieu/quadruped_ws
 bash scripts/run_trajectory.bash shape:=lemniscate control_law:=pid
 ```
 
-Chạy MPC với cùng cấu hình circle/lemniscate đã dùng trong các lượt PID/SMC:
+Chạy bộ bám MPC ở cấp trajectory; SMC low-level giữ thăng bằng và điều khiển chân:
 
 ```bash
 bash scripts/run_trajectory.bash shape:=circle control_law:=mpc radius:=1.5 period:=100 cycles:=1
 bash scripts/run_trajectory.bash shape:=lemniscate control_law:=mpc semi_axis_x:=1.2 semi_axis_y:=0.75 period:=120 cycles:=1
 ```
 
-Đổi `control_law:=smc`, `control_law:=pid` hoặc `control_law:=mpc` để chạy từng bộ bám; circle dùng `shape:=circle`. Script tự ghi CSV theo tên chứa shape, luật điều khiển và thời điểm chạy. Sau khi đã có log của cả ba luật cho cùng quỹ đạo, tạo biểu đồ so sánh:
+Đổi `control_law:=smc`, `control_law:=pid` hoặc `control_law:=mpc` để chạy từng bộ bám; circle dùng `shape:=circle`. Mặc định robot low-level vẫn dùng SMC. Chỉ truyền `robot_control_law:=pid` hoặc `robot_control_law:=mpc` khi thử nghiệm riêng controller low-level; hai chế độ full-body này chưa ổn định. Script tự ghi CSV theo tên chứa shape, luật điều khiển và thời điểm chạy. Sau khi đã có log của cả ba luật cho cùng quỹ đạo, tạo biểu đồ so sánh:
 
 ```bash
 /usr/bin/python src/trajectory/trajectory_compare.py --shape circle

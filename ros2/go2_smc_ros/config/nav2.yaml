@@ -72,7 +72,6 @@ controller_server:
       stateful: false
     FollowPath:
       plugin: go2_smc_ros::SmcPathController
-      control_law: smc
       max_speed: 0.10
       lookahead: 0.22
       lambda: 3.0

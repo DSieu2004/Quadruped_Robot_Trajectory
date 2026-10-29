@@ -7,7 +7,6 @@ cd "$GO2_WS"
 GO2_OUTPUT_SET=false
 GO2_SHAPE=circle
 GO2_LAW=smc
-GO2_ROBOT_LAW_SET=false
 GO2_LAUNCH_ARGS=()
 for GO2_ARG in "$@"; do
   if [[ "$GO2_ARG" == output_csv:=* ]]; then GO2_OUTPUT_SET=true; fi
@@ -19,15 +18,11 @@ for GO2_ARG in "$@"; do
     GO2_LAW="${GO2_ARG#trajectory_law:=}"
     GO2_LAUNCH_ARGS+=("$GO2_ARG")
   elif [[ "$GO2_ARG" == robot_control_law:=* ]]; then
-    GO2_ROBOT_LAW_SET=true
     GO2_LAUNCH_ARGS+=("$GO2_ARG")
   else
     GO2_LAUNCH_ARGS+=("$GO2_ARG")
   fi
 done
-if [[ "$GO2_LAW" == mpc && "$GO2_ROBOT_LAW_SET" == false ]]; then
-  GO2_LAUNCH_ARGS+=("robot_control_law:=$GO2_LAW")
-fi
 if [[ "$GO2_OUTPUT_SET" == true ]]; then
   exec ros2 launch go2_smc_ros trajectory.launch.xml "${GO2_LAUNCH_ARGS[@]}"
 fi

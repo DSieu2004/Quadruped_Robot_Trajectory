@@ -10,6 +10,12 @@ import matplotlib.pyplot as plt
 
 
 COLORS = {"smc": "#0072BD", "pid": "#D95319", "mpc": "#77AC30"}
+CONTROL_OUTPUT_KEYS = (
+    "controller_x_output",
+    "controller_y_output",
+    "controller_yaw_output",
+)
+CONTROL_COLORS = {"x": "#0072BD", "y": "#D95319", "yaw": "#77AC30"}
 
 
 def load_run(path: Path):
@@ -30,6 +36,14 @@ def load_run(path: Path):
             except (KeyError, TypeError, ValueError):
                 continue
             if all(math.isfinite(value) for value in sample.values()):
+                try:
+                    outputs = {key: float(row[key]) for key in CONTROL_OUTPUT_KEYS}
+                    outputs_available = all(math.isfinite(value) for value in outputs.values())
+                except (KeyError, TypeError, ValueError):
+                    outputs = {}
+                    outputs_available = False
+                sample.update(outputs)
+                sample["controller_output_available"] = outputs_available
                 rows.append(sample)
     if len(rows) < 2:
         raise ValueError(f"{path}: expected at least two valid telemetry samples")
@@ -58,6 +72,7 @@ def main():
     parser.add_argument("--logs", type=Path, default=Path("logs"))
     parser.add_argument("--duration", type=float, help="comparison duration in simulation seconds")
     parser.add_argument("--output", type=Path, help="PNG output path")
+    parser.add_argument("--control-output", type=Path, help="controller output plot path")
     args = parser.parse_args()
 
     smc_path = args.smc or newest_run(args.logs, args.shape, "smc")
@@ -149,8 +164,62 @@ def main():
     print(f"{'Controller':<12}{'RMS [m]':>12}{'Max [m]':>12}{'Final [m]':>14}")
     for label, (_, metrics) in results.items():
         print(f"{label:<12}{metrics[5]:>12.4f}{metrics[6]:>12.4f}{metrics[7]:>14.4f}")
+    control_output = args.control_output or output.with_name(
+        f"{output.stem}_controller_response{output.suffix}"
+    )
+    if all(
+        all(row.get("controller_output_available", False) for row in metrics[0])
+        for _, metrics in results.values()
+    ):
+        save_controller_response(results, duration, control_output)
+        print(f"Saved controller response plot: {control_output}")
+    else:
+        print("Skipped controller response plot: one or more CSVs lack controller output columns")
     if "agg" not in plt.get_backend().lower():
         plt.show()
+
+
+def save_controller_response(results, duration: float, output: Path) -> None:
+    figure, axes = plt.subplots(3, 1, figsize=(13, 10), sharex=True)
+    figure.canvas.manager.set_window_title("Controller output response: PID vs SMC vs MPC")
+    figure.suptitle("Trajectory controller output response", fontsize=15, fontweight="bold")
+
+    for axis, (label, (_, metrics)) in zip(axes, results.items()):
+        selected, times = metrics[0], metrics[1]
+        linear_unit = "m/s" if label == "PID" else "m/s²"
+        yaw_unit = "rad/s" if label == "PID" else "rad/s²"
+        ux = [row["controller_x_output"] for row in selected]
+        uy = [row["controller_y_output"] for row in selected]
+        uyaw = [row["controller_yaw_output"] for row in selected]
+
+        x_line, = axis.plot(times, ux, color=CONTROL_COLORS["x"], label=f"u_x [{linear_unit}]")
+        y_line, = axis.plot(times, uy, color=CONTROL_COLORS["y"], label=f"u_y [{linear_unit}]")
+        axis.axhline(0.0, color="#444444", linewidth=0.75)
+        axis.set_title(f"{label} controller output")
+        axis.set_ylabel(f"linear u [{linear_unit}]")
+        axis.grid(True)
+
+        yaw_axis = axis.twinx()
+        yaw_line, = yaw_axis.plot(
+            times, uyaw, color=CONTROL_COLORS["yaw"], label=f"u_yaw [{yaw_unit}]"
+        )
+        yaw_axis.set_ylabel(f"yaw u [{yaw_unit}]")
+        yaw_axis.grid(False)
+        lines = (x_line, y_line, yaw_line)
+        axis.legend(lines, [line.get_label() for line in lines], loc="upper right", ncol=3, fontsize=8)
+
+        linear_floor = 0.02 if label == "PID" else 0.05
+        yaw_floor = 0.03 if label == "PID" else 0.05
+        linear_limit = max(linear_floor, 1.08 * max(max(map(abs, ux)), max(map(abs, uy))))
+        yaw_limit = max(yaw_floor, 1.08 * max(map(abs, uyaw)))
+        axis.set_ylim(-linear_limit, linear_limit)
+        yaw_axis.set_ylim(-yaw_limit, yaw_limit)
+
+    axes[-1].set_xlabel("simulation time [s]")
+    axes[-1].set_xlim(0.0, duration)
+    figure.tight_layout(rect=(0, 0, 1, 0.96), h_pad=1.5)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output, dpi=180, bbox_inches="tight")
 
 
 def newest_run(log_dir: Path, shape: str, law: str) -> Path:
@@ -158,10 +227,12 @@ def newest_run(log_dir: Path, shape: str, law: str) -> Path:
     if candidates:
         return candidates[-1]
     known_runs = {
-        ("circle", "smc"): "trajectory_circle_20261026_093643.csv",
-        ("circle", "pid"): "trajectory_circle_20261026_102406.csv",
-        ("lemniscate", "smc"): "trajectory_lemniscate_20261026_100540.csv",
-        ("lemniscate", "pid"): "trajectory_lemniscate_20261026_101932.csv",
+        ("circle", "smc"): "trajectory_circle_smc_20261026_112708.csv",
+        ("circle", "pid"): "trajectory_circle_pid_20261026_214639.csv",
+        ("circle", "mpc"): "trajectory_circle_mpc_20261026_122852.csv",
+        ("lemniscate", "smc"): "trajectory_lemniscate_smc_20261026_113234.csv",
+        ("lemniscate", "pid"): "trajectory_lemniscate_pid_20261026_150748.csv",
+        ("lemniscate", "mpc"): "trajectory_lemniscate_mpc_20261026_144159.csv",
     }
     fallback_name = known_runs.get((shape, law))
     fallback = log_dir / fallback_name if fallback_name else None

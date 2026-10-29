@@ -37,11 +37,11 @@ bash scripts/run_trajectory.bash shape:=lemniscate semi_axis_x:=1.2 semi_axis_y:
 # PID trajectory follower with the stable SMC low-level Go2 controller
 bash scripts/run_trajectory.bash shape:=lemniscate control_law:=pid semi_axis_x:=1.2 semi_axis_y:=0.75 period:=120 cycles:=1
 
-# MPC trajectory comparison with SMC low-level control
-bash scripts/run_trajectory.bash shape:=lemniscate control_law:=mpc robot_control_law:=smc semi_axis_x:=1.2 semi_axis_y:=0.75 period:=120 cycles:=1
+# MPC trajectory follower with the stable SMC low-level Go2 controller
+bash scripts/run_trajectory.bash shape:=lemniscate control_law:=mpc semi_axis_x:=1.2 semi_axis_y:=0.75 period:=120 cycles:=1
 ```
 
-Set `shape:=circle` with `radius:=1.5`, or `shape:=ellipse` with `semi_axis_x` and `semi_axis_y`. `period` is seconds per cycle. PID low-level control and full-body MPC are experimental and have shown falls; use SMC low-level control for trajectory comparisons.
+Set `shape:=circle` with `radius:=1.5`, or `shape:=ellipse` with `semi_axis_x` and `semi_axis_y`. `period` is seconds per cycle. `control_law:=pid|mpc` selects only the trajectory follower; SMC remains the low-level Go2 controller. `robot_control_law:=pid|mpc` explicitly switches the low-level controller, but those full-body modes are experimental and have shown falls.
 
 Generate offline error plots after collecting matching CSV logs:
 
@@ -49,7 +49,23 @@ Generate offline error plots after collecting matching CSV logs:
 /usr/bin/python src/trajectory/trajectory_compare.py --shape lemniscate
 ```
 
-Use `--shape circle` for circle logs. The plot and RMS/max/final error summary are saved under `logs/`.
+Use `--shape circle` for circle logs. The script saves the tracking-error comparison, a separate controller-output response plot, and the RMS/max/final error summary under `logs/`.
+
+## Trajectory results
+
+The figures below compare PID, SMC, and MPC tracking on the same reference trajectory. The tracking plots show the XY path and position errors; the response plots show each controller's output signals.
+
+### Circle
+
+![Circle trajectory and tracking-error comparison for PID, SMC, and MPC](docs/images/trajectory/circle_tracking_comparison.png)
+
+![Circle trajectory controller output response](docs/images/trajectory/circle_controller_response.png)
+
+### Lemniscate
+
+![Lemniscate trajectory and tracking-error comparison for PID, SMC, and MPC](docs/images/trajectory/lemniscate_tracking_comparison.png)
+
+![Lemniscate trajectory controller output response](docs/images/trajectory/lemniscate_controller_response.png)
 
 ## Run Nav2
 
@@ -60,6 +76,8 @@ bash scripts/run_navigation.bash
 ```
 
 In RViz, select **Nav2 Goal**, click a free point on the map, drag to set the final heading, and release. Press Ctrl+C in the launch terminal before starting another simulation mode. Mapping, navigation, and trajectory launches share ROS topics and should not run simultaneously.
+
+Nav2 uses SMC for both path following and low-level Go2 control by default. To compare the Nav2 PID path controller while retaining the stable SMC low-level controller, run `bash scripts/run_navigation.bash control_law:=pid`. The separate `robot_control_law:=pid|mpc` option is experimental and has shown falls in full-body tests.
 
 To create and save a new map, run `bash scripts/run_mapping.bash`, then in another terminal run `bash scripts/save_map.bash` while mapping is active. See [SLAM and Nav2 details](docs/SLAM_NAV2.md).
 
